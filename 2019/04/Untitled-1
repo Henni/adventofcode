@@ -1,0 +1,14 @@
+input = [138307, 654504]
+
+counter = 0
+
+def adj(x):
+    prev = 0
+    for s in str(x):
+        if int(s) < prev:
+            return False
+        prev = int(s)
+
+for x in range(input[0], input[1] + 1):
+    if adj(x) and mono(x):
+        counter += 1
