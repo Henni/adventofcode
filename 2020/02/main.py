@@ -21,10 +21,12 @@ def isValidPassword(data):
     count = data[3].count(data[2]) 
     return count >= int(data[0]) and count <= int(data[1]) 
 
+def isValidPassword2(data):
+    return (data[3][int(data[0])-1] == data[2]) ^ (data[3][int(data[1])-1] == data[2])
+
 def solve(input):
-    # parse input
     input = map(parseLine, input)
-    input = filter(isValidPassword, input)
+    input = filter(isValidPassword2, input)
     return len(list(input))
 
-#print(solve(data))
+print(solve(data))
