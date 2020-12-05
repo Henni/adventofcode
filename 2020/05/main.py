@@ -1,4 +1,5 @@
 from functools import reduce
+import random
 
 with open('input.txt') as f:
     data = [line.rstrip('\n') for line in f]
@@ -21,8 +22,44 @@ def seatNumber(row: int, col: int) -> int:
     return row * 8 + col
 
 
-def solve(input) -> None:
-    return max(*[seatNumber(*parseLine(d)) for d in input])
+def printSeats(seats: list[tuple[int, int]]):
+    maxRow = 128
+    maxCol = 8
+
+    plan = [["  "] * maxCol for i in range(maxRow)]
+
+    for s in seats:
+        plan[s[0]][s[1]] = random.choice(["👱‍♀️", "👱‍♂️"])
+
+    printMatrix(transposeMatrix(plan))
+
+def transposeMatrix(ls: list[int, int]) -> list[int, int]:
+    transposed = [[0] * len(ls) for i in ls[0]]
+    
+    for i in range(len(ls)):
+        for j in range(len(ls[i])):
+            transposed[j][i] = ls[i][j]
+
+    return transposed
+
+def printMatrix(matrix):
+    nRows = len(matrix)
+    nCols = len(matrix[0])
+
+    indent = len(str(nRows)) + 2
+
+    # cols
+    for i in reversed(range(len(str(nCols)))):
+        out = [str(x // (10 ** i) % 10) for x in range(nCols)]
+
+        print((" " * indent) + "  ".join(out))
+
+
+    for i, row in enumerate(matrix):
+        print(str(i).zfill(len(str(nRows))) + ": " + " ".join(row))
+
+def solve(input):
+    printSeats([parseLine(d) for d in input])
 
 
 if __name__ == "__main__":
