@@ -29,7 +29,16 @@ def printSeats(seats: list[tuple[int, int]]):
     plan = [["  "] * maxCol for i in range(maxRow)]
 
     for s in seats:
-        plan[s[0]][s[1]] = random.choice(["👱‍♀️", "👱‍♂️"])
+        plan[s[0]][s[1]] = random.choice([
+                u"\U0001F468",
+                u"\U0001F469"
+            ]) + random.choice([
+                u"\U0001F3FB",
+                u"\U0001F3FC",
+                u"\U0001F3FD",
+                u"\U0001F3FE",
+                u"\U0001F3FF",
+            ])
 
     printMatrix(transposeMatrix(plan))
 
