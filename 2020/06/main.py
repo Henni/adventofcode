@@ -3,7 +3,7 @@ import re
 with open('input.txt') as f:
     data = [line.rstrip('\n') for line in f]
 
-def parseInput(input: list[str]) -> list[dict[str,str]]:
+def parseInput(input: list[str]) -> list[list[str]]:
     # split passports
     splitList = [] # type: list[list[str]]
     splitStart = 0
@@ -12,12 +12,21 @@ def parseInput(input: list[str]) -> list[dict[str,str]]:
             splitList.append(input[splitStart:i])
             splitStart = i + 1
 
-    flattenedInput = ["".join(passport) for passport in splitList]
+    return splitList
 
-    return flattenedInput
+def chars():
+    for c in range(ord('a'), ord('z')+1):
+        yield c
 
 def solve(input):
-    return sum([len(set(v)) for v in parseInput(input)])
+    data = parseInput(input)
+    result = 0
+    for group in data:
+        for c in chars():
+            if all([v.find(chr(c)) != -1 for v in group]):
+                result += 1
+
+    return result
 
 if __name__ == "__main__":
     print(solve(data))
