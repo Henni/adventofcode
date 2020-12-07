@@ -37,5 +37,17 @@ def solve(input):
     #outer.sort()
     return len(outer)
 
+def solve2(input):
+    data = dict([parseLine(i) for i in input])
+
+    start = 'shiny gold'
+
+    return recCount(data, start)
+
+def recCount(data, bag):
+    #[print(inner) for inner in data[bag]]
+    return sum([inner[0] + inner[0] * recCount(data, inner[1]) for inner in data[bag]])
+
 if __name__ == "__main__":
     print(solve(data))
+    print(solve2(data))
