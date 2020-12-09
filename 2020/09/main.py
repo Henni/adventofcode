@@ -11,12 +11,22 @@ def isValid(cur, prev):
     return False
 
 
-def solve(input: list[str]):
+def findError(data: list[int]):
+    for i in range(25,len(data)):
+        if not isValid(data[i], data[i-25:i]):
+            return i, data[i]
+
+def solve(input: list[int]):
     data = [int(x) for x in input]
 
-    for i in range(25,len(input)):
-        if not isValid(data[i], data[i-25:i]):
-            return data[i]
+    idx, value = findError(data)
+    print(idx, value)
+
+    for i in range(idx):
+        for j in range(i+1,idx):
+            if sum(data[i:j]) == value:
+                return min(data[i:j-1]) + max(data[i:j-1])
+            
 
 if __name__ == "__main__":
     print(solve(data))
