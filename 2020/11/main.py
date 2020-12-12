@@ -47,18 +47,34 @@ def draw(stdscr, data: list[str], counter):
 
 def neighbours(data, x, y):
     n = 0
-    for a, i in enumerate(range(x-1,x+2)):
-        if not 0 <= i < len(data[0]): continue
-        for b, j in enumerate(range(y-1,y+2)):
-            if a == 1 and b == 1: continue
-            if not 0 <= j < len(data): continue
+
+    width = len(data[0])
+    height = len(data)
+
+    directions = [
+        zip(range(x-1, -1, -1), range(y-1, -1, -1) ),  # top-left
+        zip([x]*y,              range(y-1, -1, -1) ),  # top
+        zip(range(x+1, width),  range(y-1, -1, -1) ),  # top-right
+        zip(range(x+1, width),  [y]*(width-x)     ),  # right
+        zip(range(x+1, width),  range(y+1, height)),  # bottom-right
+        zip([x]*(height-y),     range(y+1, height)),  # bottom
+        zip(range(x-1, -1, -1), range(y+1, height)),  # bottom-left
+        zip(range(x-1, -1, -1), [y]*x             ),  # left
+    ]
+    # top-left
+    for dir in directions:
+        for (i,j) in dir:
             if data[j][i] == '#':
                 n += 1
+                break
+            elif data[j][i] == 'L':
+                break 
+
     return n
 
 def newOccupation(data, x, y):
     if data[y][x] == '#':
-        if neighbours(data, x, y) >= 4:
+        if neighbours(data, x, y) >= 5:
             return 'L'
     elif data[y][x] == 'L':
         if neighbours(data, x, y) == 0:
