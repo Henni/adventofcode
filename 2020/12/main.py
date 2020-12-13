@@ -13,6 +13,31 @@ def parseLine(data):
 
 DIRECTIONS = ['N', 'E', 'S', 'W']
 
+class Waypoint:
+    x: int
+    y: int
+
+    def __init__(self):
+        self.x = 10
+        self.y = 1
+
+    def move(self, _dir: str, _distance: int):
+        if   _dir == 'N': self.y += _distance
+        elif _dir == 'E': self.x += _distance
+        elif _dir == 'S': self.y -= _distance
+        elif _dir == 'W': self.x -= _distance
+        else: print('Unknown direction')
+    
+    def rotate(self, _dir: str, _degree: int):
+        normalized = _degree if _dir == 'R' else 360 - _degree
+        normalized %= 360
+        if   normalized == 90:
+            self.x, self.y =  self.y, -self.x
+        elif normalized == 180:
+            self.x, self.y = -self.x, -self.y
+        elif normalized == 270:
+            self.x, self.y = -self.y,  self.x
+
 # Coords:
 # ^
 # |
@@ -22,39 +47,26 @@ class Ship:
     x: int
     y: int
     dir: str
+    waypoint: Waypoint
 
     def __init__(self):
         self.x = 0
         self.y = 0
-        self.dir = 'E'
+        self.waypoint = Waypoint()
     
     def act(self, m: Movement):
-        if m.command in ['N','S','E','W','F']:
-            self.move(m.command, m.distance)
+        if   m.command in ['F']:
+            self.move(m.distance)
+        elif m.command in ['N','S','E','W']:
+            self.waypoint.move(m.command, m.distance)
         elif m.command in ['L', 'R']:
-            self.rotate(m.command, m.distance)
+            self.waypoint.rotate(m.command, m.distance)
         else:
             print("Unknown command!")
-        
-    def rotate(self, _dir: str, _degree: int):
-        if _dir == 'R':
-            self.dir = DIRECTIONS[(DIRECTIONS.index(self.dir) + _degree // 90) % len(DIRECTIONS)]
-        if _dir == 'L':
-            self.dir = DIRECTIONS[(DIRECTIONS.index(self.dir) - _degree // 90) % len(DIRECTIONS)]
 
-    def move(self, _dir: str, _distance: int):
-        if _dir == 'N' or _dir == 'F' and self.dir == 'N':
-            self.y += _distance
-            return
-        if _dir == 'E' or _dir == 'F' and self.dir == 'E':
-            self.x += _distance
-            return
-        if _dir == 'S' or _dir == 'F' and self.dir == 'S':
-            self.y -= _distance
-            return
-        if _dir == 'W' or _dir == 'F' and self.dir == 'W':
-            self.x -= _distance
-            return
+    def move(self, _distance: int):
+        self.x += _distance * self.waypoint.x
+        self.y += _distance * self.waypoint.y
 
     def __str__(self) -> str:
         output = """
@@ -67,7 +79,6 @@ class Ship:
     ~'`~'`~'`~'`~'`~'`~\n\n"""
         output += f"   X:   {self.x}\n"
         output += f"   Y:   {self.y}\n"
-        output += f"   Dir: {self.dir}"
         return output
 
 def solve(data):
