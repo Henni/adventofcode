@@ -8,10 +8,39 @@ with open('input.txt') as f:
 def updateMask(memory, _, line):
     return memory, line.split(' ')[-1]
 
+
+def generateMasks(mask: str):
+    masks = [mask.replace('0', ' ').replace('1', ' ')]
+    idx = -1
+    Xs = [i for i in range(len(mask)) if mask[i] == 'X']
+    for idx in Xs:
+        newMasks = []
+        for m in masks:
+            if idx == len(mask) - 1:
+                newMasks += [
+                    m[:idx] + '0',
+                    m[:idx] + '1',
+                ]
+            else:
+                newMasks += [
+                    m[:idx] + '0' + m[idx+1:],
+                    m[:idx] + '1' + m[idx+1:],
+                ]
+        masks = newMasks
+    return masks
+
 def applyMask(x: int, mask: str):
-    x = x | int(mask.replace('X', '0'), 2) # apply 1 mask
-    x = x & int(mask.replace('X', '1'), 2) # apply 0 mask
-    return x
+    masks = generateMasks(mask)
+    values = []
+    for m in masks:
+        value = x |  int(mask.replace('X', '0'), 2) # 1s
+        value = value | int(m.replace(' ', '0'), 2) # 1 Xs
+        value = value & int(m.replace(' ', '1'), 2) # 0 Xs
+        values.append(
+            value
+        )
+    
+    return values
 
 
 memPattern = re.compile(
@@ -19,10 +48,10 @@ memPattern = re.compile(
 )
 
 def updateMem(memory, mask, line: str):
-    print(line)
     i, x = memPattern.match(line).groups()
-    x = applyMask(int(x), mask)
-    memory[i] = x
+    ids = applyMask(int(i), mask)
+    for id in ids:
+        memory[id] = x
     return memory, mask
 
 
@@ -35,7 +64,7 @@ def solve(data: list[str]):
         else:
             memory, mask = updateMem(memory, mask, d)
 
-    return sum(memory.values())
+    return sum([int(x) for x in memory.values()])
 
 
 
