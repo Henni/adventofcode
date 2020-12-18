@@ -33,10 +33,16 @@ def calcExpression(exp):
             exp[i+1] = int(exp[i-1]) + int(exp[i+1])
             exp[i-1] = None
             exp[i]   = None
-        elif x == '*':
+
+    # clean
+    exp = [x for x in exp if x != None]
+
+    # multiplication
+    for i, x in enumerate(exp):
+        if x == '*':
             exp[i+1] = int(exp[i-1]) * int(exp[i+1])
             exp[i-1] = None
-            exp[i] = None
+            exp[i]   = None
 
     # clean
     exp = [x for x in exp if x != None]
