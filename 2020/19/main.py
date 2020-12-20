@@ -1,5 +1,4 @@
 from functools import reduce
-from operator import __add__, or_
 import pyparsing as pp
 from typing import Any
 
@@ -36,23 +35,38 @@ def translateRule(rules, idx, done):
 
         [translateRule(rules, x, done) for r in rule for x in r]
 
-        rule = [reduce(__add__, [rules[x] for x in r]) for r in rule]
-        rules[idx] = reduce(or_, rule)
+        rule = [reduce(lambda x,y: x + y, [rules[x] for x in r]) for r in rule]
+        rules[idx] = reduce(lambda x,y: x ^ y, rule)
 
     done.append(idx)
 
 
 def solve():
     rules, msgs = readData()
-    translateRule(rules, '0', [])
+
+    done = []
+    translateRule(rules, '42', done)
+    translateRule(rules, '31', done)
+
+    rules['8'] = pp.Forward()
+    rules['8'] <<= rules['42'] ^ rules['42'] + rules['8']
+    rules['11'] = pp.Forward()
+    rules['11'] <<= rules['42'] + rules['31'] ^ rules['42'] + rules['11'] + rules['31']
+
     valid = 0
     for m in msgs:
-        try:
-            rules['0'].parseString(m, parseAll=True)
-            print('✓ ', m)
-            valid += 1
-        except:
+        for n in range(len(m)):
+            try:
+                rules['8'].parseString(m[:n], parseAll=True)
+                rules['11'].parseString(m[n:], parseAll=True)
+                print('✓ ', m)
+                valid += 1
+                break
+            except:
+                pass
+        else:
             print('✗ ', m)
+        
     return valid
 
 
