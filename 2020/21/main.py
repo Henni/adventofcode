@@ -37,13 +37,6 @@ def solve():
     possIng = set()
     possIng.update(*possAler.values())
 
-    #pprint(possAler)
-    
-    #for ing, aler in foods:
-    #    for a in allAler.difference(aler):
-    #        print(a, ing)
-    #        possAler[a].difference_update(set(ing))
-
     noAler = allIng.difference(possIng)
 
     res = 0
@@ -52,8 +45,22 @@ def solve():
         for x in noAler:
             res += ing.count(x)
 
-    return res
+    print('Task 1:', res)
 
+    # Find solved and clean others
+    solved = dict()
+    while len(possAler) > 0:
+        for k,v in possAler.items():
+            if len(v) == 1:
+                x = possAler[k].pop()
+                solved[k] = x
+                for k1 in possAler:
+                    possAler[k1].discard(x)
+
+        
+        possAler = {k:v for k,v in possAler.items() if len(v) > 0}
+
+    return ','.join([solved[x] for x in sorted(allAler)])
 
 if __name__ == "__main__":
-    pprint(solve())
+    print(solve())
