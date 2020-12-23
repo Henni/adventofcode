@@ -1,6 +1,3 @@
-from pprint import pprint
-from time import sleep
-
 def readData() -> list[list[int]]:
     with open('input.txt') as f:
         data = f.read()
@@ -8,70 +5,50 @@ def readData() -> list[list[int]]:
     # parse
     cups = [int(c) for c in data]
 
-    return cups
+    cups += range(10,1_000_001)
 
+    cupDict = dict()
+    for c in cups:
+        cupDict[c] = Node(c)
+        
+    for c, next in zip(cups, cups[1:] + cups[0:1]):
+        cupDict[c].next = cupDict[next]
 
-class Ring:
-    def __init__(self, list: list):
-        self.list = list
+    return cupDict, cupDict[cups[0]]
 
-    def __getitem__(self, val):
-        if isinstance(val, slice):
-            res = self.list[val.start:val.stop]
-            if val.stop and val.stop > len(self.list):
-                res += self.list[0:val.stop-len(self.list)]
-            return Ring(res)
-        else:
-            return self.list[val]
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
 
-    def __str__(self):
-        return self.list.__str__()
+def round(cupDict, cupHead: Node):
+    current = cupHead.data
+    selected = cupHead.next
+    selectedValues = [selected.data, selected.next.data, selected.next.next.data]
+    cupHead.next = selected.next.next.next
+    cupHead = cupHead.next
 
-    def index(self, val):
-        return self.list.index(val)
+    current = ((current - 2) % len(cupDict)) + 1
+    while current in selectedValues:
+        current = ((current - 2) % len(cupDict)) + 1
 
-    def __len__(self):
-        return len(self.list)
+    selected.next.next.next = cupDict[current].next
+    cupDict[current].next = selected
 
-    def __add__(self, other):
-        return Ring(self.list + other.list)
-
-
-
-def round(cups: Ring) -> Ring:
-    current = cups[0] - 1  # we count current from zero
-    selected = cups[1:4]
-    remaining = cups[0:1]+cups[4:]
-
-    print('--', current, selected)
-
-    index = -1
-    while index == -1:
-        current = (current - 1) % len(cups)
-        try:
-            index = remaining.index(current+1)
-        except ValueError:
-            pass
-
-    cups = remaining[:index+1] + selected + remaining[index+1:]
-    cups = cups[1:] + cups[0:1]
-
-    return cups
+    return cupHead
 
 
 def solve():
-    cups = readData()
-    cups = Ring(cups)
+    cupDict, cupHead = readData()
     
+    for i in range(10_000_000):
+        if i % 100_000 == 0:
+            print(i)
+        cupHead = round(cupDict, cupHead)
 
-    for _ in range(100):
-        cups = round(cups)
-        print(cups)
+    cup = cupDict[1]
 
-    oneIndex = cups.index(1)
-    result = cups[oneIndex+1:oneIndex+len(cups)]
-
-    return ''.join([str(x) for x in result])
+    return cup.next.data * cup.next.next.data
 
 if __name__ == "__main__":
     print(solve())
