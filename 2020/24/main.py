@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 movePattern = re.compile(
     r'(w|e|nw|ne|sw|se)'
@@ -15,19 +16,38 @@ def readData() -> list[list[int]]:
     return movements
 
 
+switchMovement = {
+    'w': lambda x, y: (x-1, y),
+    'e': lambda x, y: (x+1, y),
+    'nw': lambda x, y: (x-1, y-1),
+    'ne': lambda x, y: (x, y-1),
+    'sw': lambda x, y: (x, y+1),
+    'se': lambda x, y: (x+1, y+1),
+}
+
+
+def round(flipped):
+    candidates = defaultdict(int)
+    for x,y in flipped:
+        neighbours = [f(x, y) for f in switchMovement.values()]
+        for n in neighbours:
+            if n not in flipped:
+                candidates[n] += 1
+
+    result = [c for c in flipped if
+        sum([int(f(*c) in flipped) for f in switchMovement.values()]) in [1,2]
+    ]
+
+    result += [c for c,v in candidates.items() if v == 2]
+        
+    return result
+            
+
+
 def solve():
     movements = readData()
 
     flipped = []
-
-    switchMovement = {
-        'w': lambda x,y: (x-1, y),
-        'e': lambda x, y: (x+1, y),
-        'nw': lambda x,y: (x-1,y-1),
-        'ne': lambda x, y: (x, y-1),
-        'sw': lambda x, y: (x, y+1),
-        'se': lambda x, y: (x+1, y+1),
-    }
 
     for move in movements:
         coord = (0,0)
@@ -38,6 +58,10 @@ def solve():
             flipped.remove(coord)
         else:
             flipped.append(coord)
+
+    for n in range(100):
+        print(n)
+        flipped = round(flipped)
     
     return len(flipped)
 
